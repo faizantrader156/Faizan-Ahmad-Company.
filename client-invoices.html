@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Invoices | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1100px; margin: 0 auto; }
+        .control-card { background: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; }
+        .client-table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; font-size: 0.9rem; margin-top: 15px; }
+        .client-table th, .client-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #334155; }
+        .client-table th { background: #0f172a; color: #38bdf8; }
+        .btn-action { background: #38bdf8; color: #0f172a; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .badge-paid { color: #22c55e; font-weight: bold; }
+        .badge-pending { color: #ef4444; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">📋 Client Invoices</div>
+        <nav>
+            <a href="client-dashboard.html">Home</a>
+            <a href="client-invoices.html">Invoices</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="control-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div>
+                    <h2 style="color: #f8fafc; margin-bottom: 5px;">Billing & Invoice History</h2>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">View and manage your project invoices and payment history.</p>
+                </div>
+                <button class="btn-action" onclick="addNewClientInvoice()">+ Add Invoice</button>
+            </div>
+
+            <table class="client-table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Project Name</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="clientInvoiceTableBody">
+                    <!-- Dynamically loaded -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            loadClientInvoices();
+        };
+
+        function getClientInvoices() {
+            const defaults = [
+                { id: 1, invId: "#INV-1001", project: "E-Commerce Redesign", amount: "$250.00", status: "Paid" },
+                { id: 2, invId: "#INV-1002", project: "Mobile App UI/UX", amount: "$450.00", status: "Pending" }
+            ];
+            const data = localStorage.getItem('client_portal_invoices');
+            return data ? JSON.parse(data) : defaults;
+        }
+
+        function saveClientInvoices(invoices) {
+            localStorage.setItem('client_portal_invoices', JSON.stringify(invoices));
+        }
+
+        function loadClientInvoices() {
+            const invoices = getClientInvoices();
+            const tbody = document.getElementById('clientInvoiceTableBody');
+            tbody.innerHTML = '';
+
+            invoices.forEach(inv => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong style="color: #38bdf8;">${inv.invId}</strong></td>
+                    <td style="color: #f8fafc;">${inv.project}</td>
+                    <td style="color: #22c55e; font-weight: bold;">${inv.amount}</td>
+                    <td><span class="${inv.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${inv.status}</span></td>
+                    <td>
+                        <button class="btn-action" style="background: #334155; color: #fff;" onclick="editClientInvoice(${inv.id})">Edit</button>
+                        <button class="btn-action" style="background: #ef4444; color: #fff; margin-left: 5px;" onclick="deleteClientInvoice(${inv.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addNewClientInvoice() {
+            const invId = prompt("Enter Invoice ID (e.g. #INV-1003):", "#INV-1003");
+            if (!invId) return;
+            const project = prompt("Enter Project Name:");
+            const amount = prompt("Enter Amount (e.g. $300.00):", "$300.00");
+            const status = prompt("Enter Status (Paid / Pending):", "Paid");
+
+            let invoices = getClientInvoices();
+            invoices.push({
+                id: Date.now(),
+                invId,
+                project: project || 'General Project',
+                amount: amount || '$0.00',
+                status: status || 'Paid'
+            });
+
+            saveClientInvoices(invoices);
+            loadClientInvoices();
+        }
+
+        function editClientInvoice(id) {
+            let invoices = getClientInvoices();
+            let inv = invoices.find(item => item.id === id);
+            if (!inv) return;
+
+            const invId = prompt("Edit Invoice ID:", inv.invId);
+            if (invId === null) return;
+            const project = prompt("Edit Project Name:", inv.project);
+            const amount = prompt("Edit Amount:", inv.amount);
+            const status = prompt("Edit Status (Paid / Pending):", inv.status);
+
+            inv.invId = invId || inv.invId;
+            inv.project = project || inv.project;
+            inv.amount = amount || inv.amount;
+            inv.status = status || inv.status;
+
+            saveClientInvoices(invoices);
+            loadClientInvoices();
+        }
+
+        function deleteClientInvoice(id) {
+            if (confirm("Kya aap waqai is invoice ko delete karna chahte hain?")) {
+                let invoices = getClientInvoices();
+                let filtered = invoices.filter(item => item.id !== id);
+                saveClientInvoices(filtered);
+                loadClientInvoices();
+            }
+        }
+    </script>
+</body>
+</html>

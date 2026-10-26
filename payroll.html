@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Payroll & Attendance Suite | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1350px; margin: 0 auto; }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: #1e293b; margin: 3% auto; padding: 25px; border: 1px solid #334155; width: 90%; max-width: 600px; border-radius: 8px; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.9rem; }
+
+        .payroll-table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; margin-top: 15px; font-size: 0.88rem; }
+        .payroll-table th, .payroll-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #334155; }
+        .payroll-table th { background: #0f172a; color: #38bdf8; }
+        
+        .btn-pay { background: #0284c7; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .btn-pay.paid { background: #22c55e; }
+        .btn-remove { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; margin-left: 5px; }
+        .btn-add { background: #38bdf8; color: #0f172a; font-weight: bold; padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; }
+        .details-badge { background: #0f172a; padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">💰 Employee Payroll & Attendance</div>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="admin-dashboard.html">Admin Dashboard</a>
+            <a href="client-management.html">Clients</a>
+            <a href="billing-overview.html">Billing</a>
+            <a href="payroll.html">Payroll</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="action-bar">
+            <div>
+                <h2 style="color: #f1f5f9;">Worker Onboarding & Automated Payroll</h2>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Manage staff records. Removing a worker will delete them from both Payroll and Attendance sheets.</p>
+            </div>
+            <button class="btn-add" onclick="openModal()">+ Add New Worker</button>
+        </div>
+
+        <table class="payroll-table">
+            <thead>
+                <tr>
+                    <th>Worker Info</th>
+                    <th>CNIC & Contact</th>
+                    <th>Shift & Dihadi</th>
+                    <th>Days Worked</th>
+                    <th>Overtime (Hrs)</th>
+                    <th>Calculated Salary</th>
+                    <th>Actions & Status</th>
+                </tr>
+            </thead>
+            <tbody id="payrollTableBody">
+                <!-- Dynamically populated -->
+            </tbody>
+        </table>
+    </div>
+
+   <!-- Modal Form for Adding Worker -->
+    <div id="workerModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #38bdf8; margin-bottom: 10px;">Register New Staff Member</h3>
+            <form id="workerForm" onsubmit="saveNewWorker(event)">
+                <div class="modal-grid">
+                    <div class="form-group">
+                        <label>Worker Full Name *</label>
+                        <input type="text" id="wName" required placeholder="e.g. Ali Khan">
+                    </div>
+                    <div class="form-group">
+                        <label>Father Name *</label>
+                        <input type="text" id="wFather" required placeholder="e.g. Ahmed Khan">
+                    </div>
+                    <div class="form-group">
+                        <label>CNIC Number (Numbers only) *</label>
+                        <input type="text" id="wCnic" required placeholder="1540100000001" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '')" title="Sirf numbers enter karein">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number (Numbers only) *</label>
+                        <input type="text" id="wPhone" required placeholder="03489573662" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" title="Sirf numbers enter karein">
+                    </div>
+                    <div class="form-group">
+                        <label>Location / City *</label>
+                        <input type="text" id="wLocation" required placeholder="e.g. Swabi">
+                    </div>
+                    <div class="form-group">
+                        <label>Role / Position *</label>
+                        <select id="wRole">
+                            <option value="Manager">Manager</option>
+                            <option value="Developer">Developer</option>
+                            <option value="Site Supervisor">Site Supervisor</option>
+                            <option value="Support Staff">Support Staff</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Per Day Dihadi ($/Rs) *</label>
+                        <input type="number" id="wRate" required placeholder="e.g. 40">
+                    </div>
+                    <div class="form-group">
+                        <label>Shift Timing *</label>
+                        <select id="wShift">
+                            <option value="8 Hours Standard">8 Hours Standard</option>
+                            <option value="12 Hours Extended">12 Hours Extended</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" onclick="closeModal()" style="background: #475569; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Cancel</button>
+                    <button type="submit" class="btn-add" style="padding: 8px 16px;">Save Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        const defaultStaff = [
+            {
+                id: 101,
+                name: "Faizan Ahmad",
+                father: "Shafi Ullah Khan",
+                cnic: "15401-0000000-1",
+                phone: "03489573662",
+                location: "Swabi",
+                role: "Lead Manager",
+                rate: 50,
+                shift: "8 Hours Standard",
+                daysWorked: 26,
+                overtime: 0,
+                attendanceStatus: "present",
+                timeIn: "09:00 AM",
+                timeOut: "05:00 PM",
+                paid: false
+            }
+        ];
+
+        function getStaff() {
+            const data = localStorage.getItem('agency_staff_attendance');
+            return data ? JSON.parse(data) : defaultStaff;
+        }
+
+        function saveStaff(data) {
+            localStorage.setItem('agency_staff_attendance', JSON.stringify(data));
+        }
+
+        function renderTable() {
+            const staff = getStaff();
+            const tbody = document.getElementById('payrollTableBody');
+            tbody.innerHTML = '';
+
+            if (staff.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No workers registered yet.</td></tr>`;
+                return;
+            }
+
+            staff.forEach(w => {
+                const hourlyRate = w.rate / 8;
+                const totalSalary = (w.daysWorked * w.rate) + (w.overtime * hourlyRate);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong style="color: #f8fafc; font-size: 0.95rem;">${w.name}</strong><br>
+                        <span class="details-badge">${w.role}</span>
+                    </td>
+                    <td>
+                        <span style="color: #cbd5e1;">Father: ${w.father}</span><br>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">CNIC: ${w.cnic} | Ph: ${w.phone}</span><br>
+                        <span style="font-size: 0.75rem; color: #38bdf8;">Loc: ${w.location}</span>
+                    </td>
+                    <td>
+                        <span style="color: #22c55e; font-weight: bold;">$${w.rate} / Day</span><br>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">${w.shift}</span>
+                    </td>
+                    <td>
+                        <input type="number" value="${w.daysWorked}" min="0" max="31" style="width: 55px; padding: 4px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 4px;" onchange="updateWorkedDays(${w.id}, this.value)"> Days
+                    </td>
+                    <td>
+                        <input type="number" value="${w.overtime}" min="0" style="width: 55px; padding: 4px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 4px;" onchange="updateOvertime(${w.id}, this.value)"> Hrs
+                    </td>
+                    <td>
+                        <strong style="color: #38bdf8; font-size: 1rem;">$${totalSalary.toFixed(2)}</strong>
+                    </td>
+                    <td>
+                        <button class="btn-pay ${w.paid ? 'paid' : ''}" onclick="toggleStatus(${w.id})">
+                            ${w.paid ? '✓ Paid' : 'Mark as Paid'}
+                        </button>
+                        <button class="btn-remove" onclick="removeWorker(${w.id})">Remove</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateWorkedDays(id, days) {
+            let staff = getStaff();
+            let w = staff.find(item => item.id === id);
+            if (w) {
+                w.daysWorked = parseFloat(days) || 0;
+                saveStaff(staff);
+                renderTable();
+            }
+        }
+
+        function updateOvertime(id, hrs) {
+            let staff = getStaff();
+            let w = staff.find(item => item.id === id);
+            if (w) {
+                w.overtime = parseFloat(hrs) || 0;
+                saveStaff(staff);
+                renderTable();
+            }
+        }
+
+        function toggleStatus(id) {
+            let staff = getStaff();
+            let w = staff.find(item => item.id === id);
+            if (w) {
+                w.paid = !w.paid;
+                saveStaff(staff);
+                renderTable();
+            }
+        }
+
+        function removeWorker(id) {
+            if (confirm("Kya aap waqai is worker ko kaam se nikalna (delete) chahte hain?")) {
+                let staff = getStaff();
+                let filteredStaff = staff.filter(item => item.id !== id);
+                saveStaff(filteredStaff);
+                renderTable();
+            }
+        }
+
+        function openModal() { document.getElementById('workerModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('workerModal').style.display = 'none'; }
+
+        function saveNewWorker(e) {
+            e.preventDefault();
+            let staff = getStaff();
+            
+            const newStaff = {
+                id: Date.now(),
+                name: document.getElementById('wName').value,
+                father: document.getElementById('wFather').value,
+                cnic: document.getElementById('wCnic').value,
+                phone: document.getElementById('wPhone').value,
+                location: document.getElementById('wLocation').value,
+                role: document.getElementById('wRole').value,
+                rate: parseFloat(document.getElementById('wRate').value) || 0,
+                shift: document.getElementById('wShift').value,
+                daysWorked: 26,
+                overtime: 0,
+                attendanceStatus: 'present',
+                timeIn: '09:00 AM',
+                timeOut: '05:00 PM',
+                paid: false
+            };
+
+            staff.push(newStaff);
+            saveStaff(staff);
+            renderTable();
+            closeModal();
+            document.getElementById('workerForm').reset();
+            alert("New Staff Saved & Synced Successfully!");
+        }
+
+        window.onload = renderTable;
+    </script>
+
+</body>
+</html>

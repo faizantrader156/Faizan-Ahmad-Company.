@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(-45deg, #0f172a, #1e3a8a, #0369a1, #0f172a, #3b82f6);
+    background-size: 400% 400%;
+    animation: vibrantBusinessBG 8s ease infinite;
+    color: #f8fafc;
+    min-height: 100vh;
+}
+
+@keyframes vibrantBusinessBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #38bdf8;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(-45deg, #0f172a, #1e3a8a, #0369a1, #0f172a, #3b82f6);
+    background-size: 400% 400%;
+    animation: vibrantBusinessBG 8s ease infinite;
+    color: #f8fafc;
+}
+
+@keyframes vibrantBusinessBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #38bdf8;
+}
+
+/* Footer ko page ke bilkul neechay fix karne ke liye */
+.footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 25px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(56, 189, 248, 0.2);
+    background: rgba(15, 23, 42, 0.85);
+}

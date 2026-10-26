@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Progress | Client Portal</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 40px; max-width: 1000px; margin: 0 auto; }
+        .project-card { background: #1e293b; padding: 25px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 25px; }
+        .project-card h3 { color: #38bdf8; margin-bottom: 10px; }
+        .progress-bar-bg { background: #0f172a; height: 12px; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #334155; }
+        .progress-bar-fill { background: #38bdf8; height: 100%; width: 75%; border-radius: 6px; }
+        .milestone-list { margin-top: 15px; color: #cbd5e1; }
+        .milestone-list li { margin-left: 20px; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">FAIZAN AHMAD COMPANY</div>
+        <nav>
+            <a href="client-dashboard.html">Dashboard</a>
+            <a href="client-invoices.html">Invoices</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2 style="color: #f1f5f9; margin-bottom: 20px;">Active Project Roadmap</h2>
+
+        <div class="project-card">
+            <h3>E-Commerce Platform Redesign</h3>
+            <p style="color: #94a3b8;">Full frontend UI build and Node.js REST API integration.</p>
+            
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <p style="font-size: 0.9rem; color: #38bdf8; font-weight: bold;">Completion: 75%</p>
+
+            <ul class="milestone-list">
+                <li>✅ Wireframes & Design Mockups Approved</li>
+                <li>✅ Frontend Dashboard Structure Built</li>
+                <li>⏳ API Endpoint Integration (In Progress)</li>
+                <li>❌ Final QA & Deployment</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Lead Architect: <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+</body>
+</html>

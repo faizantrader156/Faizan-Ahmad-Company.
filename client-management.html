@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .control-card { background: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; }
+        .client-table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; font-size: 0.9rem; margin-top: 15px; }
+        .client-table th, .client-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #334155; }
+        .client-table th { background: #0f172a; color: #38bdf8; }
+        .btn-action { background: #38bdf8; color: #0f172a; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .badge-active { color: #22c55e; font-weight: bold; }
+        .badge-onboarding { color: #f97316; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">👥 Client Management Suite</div>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="client-management.html">Clients</a>
+            <a href="billing-overview.html">Billing</a>
+            <a href="payroll.html">Payroll</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="control-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <h2 style="color: #f8fafc; margin-bottom: 5px;">Active Client Roster</h2>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Manage agency clients, company profiles, and total spends.</p>
+                </div>
+                <button class="btn-action" onclick="addNewClient()">+ Add New Client</button>
+            </div>
+
+            <table class="client-table">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Company</th>
+                        <th>Active Projects</th>
+                        <th>Total Spend</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody">
+                    <!-- Dynamically loaded -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            loadClients();
+        };
+
+        function getClients() {
+            const defaultClients = [
+                { id: 1, name: "Apex Media Group", company: "Apex Inc.", projects: "2 Projects", spend: "$4,500", status: "Active" },
+                { id: 2, name: "Nexus Digital", company: "Nexus LLC", projects: "1 Project", spend: "$1,800", status: "Active" },
+                { id: 3, name: "Vanguard Labs", company: "Vanguard Co.", projects: "0 Projects", spend: "$0", status: "Onboarding" }
+            ];
+            const data = localStorage.getItem('agency_clients_list');
+            return data ? JSON.parse(data) : defaultClients;
+        }
+
+        function saveClients(clients) {
+            localStorage.setItem('agency_clients_list', JSON.stringify(clients));
+        }
+
+        function loadClients() {
+            const clients = getClients();
+            const tbody = document.getElementById('clientTableBody');
+            tbody.innerHTML = '';
+
+            clients.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong style="color: #f8fafc;">${c.name}</strong></td>
+                    <td style="color: #cbd5e1;">${c.company}</td>
+                    <td style="color: #38bdf8;">${c.projects}</td>
+                    <td style="color: #22c55e; font-weight: bold;">${c.spend}</td>
+                    <td><span class="${c.status === 'Active' ? 'badge-active' : 'badge-onboarding'}">${c.status}</span></td>
+                    <td>
+                        <button class="btn-action" style="background: #334155; color: #fff;" onclick="editClient(${c.id})">Edit</button>
+                        <button class="btn-action" style="background: #ef4444; color: #fff; margin-left: 5px;" onclick="deleteClient(${c.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addNewClient() {
+            const name = prompt("Enter Client Name:");
+            if (!name) return;
+            const company = prompt("Enter Company Name:");
+            const projects = prompt("Enter Active Projects (e.g. 2 Projects):", "1 Project");
+            const spend = prompt("Enter Total Spend (e.g. $2,000):", "$1,000");
+            const status = prompt("Enter Status (Active / Onboarding):", "Active");
+
+            let clients = getClients();
+            const newClient = {
+                id: Date.now(),
+                name,
+                company: company || 'N/A',
+                projects: projects || '0 Projects',
+                spend: spend || '$0',
+                status: status || 'Active'
+            };
+
+            clients.push(newClient);
+            saveClients(clients);
+            loadClients();
+        }
+
+        function editClient(id) {
+            let clients = getClients();
+            let c = clients.find(item => item.id === id);
+            if (!c) return;
+
+            const name = prompt("Edit Client Name:", c.name);
+            if (name === null) return;
+            const company = prompt("Edit Company Name:", c.company);
+            const projects = prompt("Edit Active Projects:", c.projects);
+            const spend = prompt("Edit Total Spend:", c.spend);
+            const status = prompt("Edit Status (Active / Onboarding):", c.status);
+
+            c.name = name || c.name;
+            c.company = company || c.company;
+            c.projects = projects || c.projects;
+            c.spend = spend || c.spend;
+            c.status = status || c.status;
+
+            saveClients(clients);
+            loadClients();
+        }
+
+        function deleteClient(id) {
+            if (confirm("Kya aap waqai is client ko delete karna chahte hain?")) {
+                let clients = getClients();
+                let filtered = clients.filter(item => item.id !== id);
+                saveClients(filtered);
+                loadClients();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance & History Roster | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1300px; margin: 0 auto; }
+        .date-bar { background: #1e293b; padding: 15px 20px; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .date-bar input { background: #0f172a; color: #fff; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; }
+        
+        .section-title { color: #38bdf8; font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid #334155; padding-bottom: 5px; }
+        
+        .attendance-table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; margin-bottom: 40px; font-size: 0.9rem; }
+        .attendance-table th, .attendance-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #334155; }
+        .attendance-table th { background: #0f172a; color: #38bdf8; }
+        
+        .btn-att { background: #334155; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
+        .btn-att.present { background: #22c55e; color: #fff; }
+        .btn-att.absent { background: #ef4444; color: #fff; }
+        .btn-remove { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        
+        .time-input { padding: 5px 8px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 4px; font-size: 0.85rem; width: 100px; }
+        .details-badge { background: #0f172a; padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">📋 Daily Attendance & History Suite</div>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="admin-dashboard.html">Admin Dashboard</a>
+            <a href="payroll.html">Payroll</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Date Bar -->
+        <div class="date-bar">
+            <div>
+                <h2 style="color: #f1f5f9; margin-bottom: 4px;">Date-wise Attendance & Shift Logger</h2>
+                <p style="color: #94a3b8; font-size: 0.85rem;">Select any date to mark, update, or view historical attendance for that specific day.</p>
+            </div>
+            <div>
+                <label style="color: #38bdf8; font-weight: bold; margin-right: 10px; font-size: 0.9rem;">Select Date:</label>
+                <input type="date" id="attendanceDate" onchange="handleDateChange()">
+            </div>
+        </div>
+
+        <!-- Daily Attendance Section -->
+        <div class="section-title">📅 Daily Attendance Marking</div>
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Worker Name & Role</th>
+                    <th>CNIC & Contact</th>
+                    <th>Status For Selected Date</th>
+                    <th>Duty Time (In - Out)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+                <!-- Dynamically loaded -->
+            </tbody>
+        </table>
+
+        <!-- Workers History / Summary Section -->
+        <div class="section-title">📊 Workers Total History & Performance Summary</div>
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Worker Name</th>
+                    <th>Role & Shift</th>
+                    <th>Total Days Present</th>
+                    <th>Total Overtime (Hrs)</th>
+                    <th>Estimated Monthly Salary</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                <!-- Dynamically loaded -->
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            // Check if a date was previously selected, otherwise use today's date
+            const savedDate = localStorage.getItem('agency_selected_attendance_date');
+            const today = new Date().toISOString().split('T')[0];
+            const targetDate = savedDate || today;
+
+            document.getElementById('attendanceDate').value = targetDate;
+            loadAttendanceList();
+        };
+
+        function getStaff() {
+            const data = localStorage.getItem('agency_staff_attendance');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveStaff(data) {
+            localStorage.setItem('agency_staff_attendance', JSON.stringify(data));
+        }
+
+        function handleDateChange() {
+            const selectedDate = document.getElementById('attendanceDate').value;
+            localStorage.setItem('agency_selected_attendance_date', selectedDate);
+            loadAttendanceList();
+        }
+
+        function loadAttendanceList() {
+            const staff = getStaff();
+            const selectedDate = document.getElementById('attendanceDate').value;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+
+            if (staff.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8;">No workers found. Please add workers from Payroll page.</td></tr>`;
+                loadHistorySummary();
+                return;
+            }
+
+            staff.forEach(s => {
+                if (!s.dailyLogs) s.dailyLogs = {};
+                const currentStatus = s.dailyLogs[selectedDate] || 'unmarked';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong style="color: #f8fafc; font-size: 0.95rem;">${s.name}</strong><br>
+                        <span class="details-badge">${s.role} (${s.shift})</span>
+                    </td>
+                    <td>
+                        <span style="color: #cbd5e1; font-size: 0.85rem;">Father: ${s.father}</span><br>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">CNIC: ${s.cnic} | Ph: ${s.phone}</span><br>
+                        <span style="font-size: 0.75rem; color: #38bdf8;">Loc: ${s.location}</span>
+                    </td>
+                    <td>
+                        <button class="btn-att ${currentStatus === 'present' ? 'present' : ''}" onclick="markDailyAttendance(${s.id}, 'present')">✓ Present</button>
+                        <button class="btn-att ${currentStatus === 'absent' ? 'absent' : ''}" onclick="markDailyAttendance(${s.id}, 'absent')">❌ Absent</button>
+                    </td>
+                    <td>
+                        In: <input type="text" class="time-input" value="${s.timeIn || '09:00 AM'}" onchange="updateTime(${s.id}, 'timeIn', this.value)"><br>
+                        Out: <input type="text" class="time-input" value="${s.timeOut || '05:00 PM'}" onchange="updateTime(${s.id}, 'timeOut', this.value)" style="margin-top: 5px;">
+                    </td>
+                    <td>
+                        <button class="btn-remove" onclick="removeWorker(${s.id})">Remove</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            loadHistorySummary();
+        }
+
+        function markDailyAttendance(id, status) {
+            let staff = getStaff();
+            const selectedDate = document.getElementById('attendanceDate').value;
+            let s = staff.find(item => item.id === id);
+            
+            if (s) {
+                if (!s.dailyLogs) s.dailyLogs = {};
+                const oldStatus = s.dailyLogs[selectedDate];
+
+                if (oldStatus !== 'present' && status === 'present') {
+                    s.daysWorked = (s.daysWorked || 0) + 1;
+                } else if (oldStatus === 'present' && status === 'absent') {
+                    s.daysWorked = Math.max(0, (s.daysWorked || 0) - 1);
+                } else if (!oldStatus && status === 'present') {
+                    s.daysWorked = (s.daysWorked || 0) + 1;
+                }
+
+                s.dailyLogs[selectedDate] = status;
+                saveStaff(staff);
+                loadAttendanceList();
+            }
+        }
+
+        function loadHistorySummary() {
+            const staff = getStaff();
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (staff.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8;">No history records available.</td></tr>`;
+                return;
+            }
+
+            staff.forEach(s => {
+                const hourlyRate = (s.rate || 0) / 8;
+                const totalSalary = ((s.daysWorked || 0) * (s.rate || 0)) + ((s.overtime || 0) * hourlyRate);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong style="color: #f8fafc;">${s.name}</strong></td>
+                    <td><span class="details-badge">${s.role} | ${s.shift}</span></td>
+                    <td><span style="color: #22c55e; font-weight: bold;">${s.daysWorked || 0} Days</span></td>
+                    <td><span style="color: #38bdf8; font-weight: bold;">${s.overtime || 0} Hrs</span></td>
+                    <td><strong style="color: #38bdf8; font-size: 1rem;">$${totalSalary.toFixed(2)}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateTime(id, field, value) {
+            let staff = getStaff();
+            let s = staff.find(item => item.id === id);
+            if (s) {
+                s[field] = value;
+                saveStaff(staff);
+            }
+        }
+
+        function removeWorker(id) {
+            if (confirm("Kya aap waqai is worker ko remove karna chahte hain?")) {
+                let staff = getStaff();
+                let filtered = staff.filter(item => item.id !== id);
+                saveStaff(filtered);
+                loadAttendanceList();
+            }
+        }
+    </script>
+
+</body>
+</html>

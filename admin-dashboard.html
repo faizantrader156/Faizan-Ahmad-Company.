@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .control-card { background: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
+        .stat-box { background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; text-align: center; }
+        .stat-box h3 { color: #94a3b8; font-size: 0.9rem; margin-bottom: 10px; }
+        .stat-box .value { color: #38bdf8; font-size: 1.8rem; font-weight: bold; }
+        .btn-edit { background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+        .btn-edit:hover { background: #0ea5e9; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">FAIZAN AHMAD COMPANY</div>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="attendance.html">Attendance</a>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="client-management.html">Clients</a>
+            <a href="billing-overview.html">Billing</a>
+            <a href="payroll.html">Payroll</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="control-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="color: #f8fafc; margin-bottom: 5px;">Agency Owner Control Center</h2>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Manage all active clients, employees, and agency revenue streams.</p>
+                </div>
+                <button class="btn-edit" onclick="editDashboardMetrics()">✏️ Edit Metrics</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>Total Revenue</h3>
+                    <div class="value" id="dispRevenue">$12,450</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Active Clients</h3>
+                    <div class="value" id="dispClients">18</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Pending Projects</h3>
+                    <div class="value" id="dispProjects">04</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Team Members</h3>
+                    <div class="value" id="dispTeam">07</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            loadMetrics();
+        };
+
+        function loadMetrics() {
+            document.getElementById('dispRevenue').innerText = localStorage.getItem('agency_revenue') || '$12,450';
+            document.getElementById('dispClients').innerText = localStorage.getItem('agency_clients') || '18';
+            document.getElementById('dispProjects').innerText = localStorage.getItem('agency_projects') || '04';
+            document.getElementById('dispTeam').innerText = localStorage.getItem('agency_team') || '07';
+        }
+
+        function editDashboardMetrics() {
+            const currentRev = localStorage.getItem('agency_revenue') || '$12,450';
+            const currentClients = localStorage.getItem('agency_clients') || '18';
+            const currentProjects = localStorage.getItem('agency_projects') || '04';
+            const currentTeam = localStorage.getItem('agency_team') || '07';
+
+            const newRev = prompt("Enter Total Revenue (e.g. $15,000):", currentRev);
+            if (newRev === null) return;
+
+            const newClients = prompt("Enter Active Clients count:", currentClients);
+            if (newClients === null) return;
+
+            const newProjects = prompt("Enter Pending Projects count:", currentProjects);
+            if (newProjects === null) return;
+
+            const newTeam = prompt("Enter Team Members count:", currentTeam);
+            if (newTeam === null) return;
+
+            localStorage.setItem('agency_revenue', newRev);
+            localStorage.setItem('agency_clients', newClients);
+            localStorage.setItem('agency_projects', newProjects);
+            localStorage.setItem('agency_team', newTeam);
+
+            loadMetrics();
+            alert("Dashboard metrics successfully updated and saved!");
+        }
+    </script>
+
+</body>
+</html>

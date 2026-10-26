@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard | FAIZAN AHMAD COMPANY</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        .container { padding: 30px; max-width: 1100px; margin: 0 auto; }
+        .welcome-card { background: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .stat-box { background: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
+        .stat-box h3 { color: #94a3b8; font-size: 0.95rem; margin-bottom: 12px; }
+        .stat-box .value { color: #38bdf8; font-size: 2rem; font-weight: bold; }
+        .btn-edit { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+        .btn-edit:hover { background: #0ea5e9; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">🚀 Client Portal</div>
+        <nav>
+            <a href="client-dashboard.html">Home</a>
+            <a href="client-invoices.html">Invoices</a>
+            <a href="../index.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="welcome-card">
+            <div>
+                <h2 style="color: #f8fafc; margin-bottom: 8px;">Welcome Back, Valued Client!</h2>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Here is a quick overview of your active projects, pending tasks, and invoices managed by our agency.</p>
+            </div>
+            <button class="btn-edit" onclick="editClientDashboard()">✏️ Edit Metrics</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h3>Active Projects</h3>
+                <div class="value" id="dispActiveProjects">02</div>
+            </div>
+            <div class="stat-box">
+                <h3>Pending Tasks</h3>
+                <div class="value" id="dispPendingTasks">05</div>
+            </div>
+            <div class="stat-box">
+                <h3>Unpaid Invoices</h3>
+                <div class="value" id="dispUnpaidInvoices">$450</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; FAIZAN AHMAD COMPANY. Architected by <strong>Faizan Ahmad</strong></p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            loadClientDashboard();
+        };
+
+        function loadClientDashboard() {
+            document.getElementById('dispActiveProjects').innerText = localStorage.getItem('client_active_projects') || '02';
+            document.getElementById('dispPendingTasks').innerText = localStorage.getItem('client_pending_tasks') || '05';
+            document.getElementById('dispUnpaidInvoices').innerText = localStorage.getItem('client_unpaid_invoices') || '$450';
+        }
+
+        function editClientDashboard() {
+            const curProjects = localStorage.getItem('client_active_projects') || '02';
+            const curTasks = localStorage.getItem('client_pending_tasks') || '05';
+            const curInvoices = localStorage.getItem('client_unpaid_invoices') || '$450';
+
+            const newProjects = prompt("Enter Active Projects count:", curProjects);
+            if (newProjects === null) return;
+            const newTasks = prompt("Enter Pending Tasks count:", curTasks);
+            if (newTasks === null) return;
+            const newInvoices = prompt("Enter Unpaid Invoices amount:", curInvoices);
+            if (newInvoices === null) return;
+
+            localStorage.setItem('client_active_projects', newProjects);
+            localStorage.setItem('client_pending_tasks', newTasks);
+            localStorage.setItem('client_unpaid_invoices', newInvoices);
+
+            loadClientDashboard();
+            alert("Client dashboard metrics updated successfully!");
+        }
+    </script>
+
+</body>
+</html>
